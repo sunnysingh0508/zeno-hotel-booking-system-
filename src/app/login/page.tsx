@@ -48,9 +48,15 @@ export default function LoginPage() {
       </div>
 
       {/* Right side form */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-8 bg-slate-50 lg:bg-white relative">
+      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-8 relative overflow-hidden bg-slate-50">
+        
+        {/* Animated Background Gradients */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-300/40 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-300/40 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
+        <div className="absolute top-[40%] right-[10%] w-[300px] h-[300px] bg-pink-300/30 rounded-full blur-[80px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '2s' }} />
+
         {/* Mobile branding */}
-        <div className="absolute top-8 left-6 lg:hidden">
+        <div className="absolute top-8 left-6 lg:hidden z-20">
           <Link href="/" className="text-2xl font-bold text-indigo-600 tracking-tight">
             ZENO
           </Link>

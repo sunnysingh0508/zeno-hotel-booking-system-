@@ -1,35 +1,68 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import Link from 'next/link';
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function SignupForm() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: ""
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const checkPasswordStrength = (pass: string) => {
+    let score = 0;
+    if (pass.length > 5) score += 1;
+    if (pass.length > 8) score += 1;
+    if (/[A-Z]/.test(pass) && /[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+    return Math.min(score, 4); // Max 4 points
+  };
+
+  const strength = checkPasswordStrength(formData.password);
 
   const validate = () => {
     let isValid = true;
-    const newErrors = { email: "", password: "" };
+    const newErrors: Record<string, string> = {};
 
-    if (!email) {
+    if (!formData.name) {
+      newErrors.name = "Name is required";
+      isValid = false;
+    }
+    
+    if (!formData.email) {
       newErrors.email = "Email is required";
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
       isValid = false;
     }
 
-    if (!password) {
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+      isValid = false;
+    } else if (!/^\d{10,}$/.test(formData.phone.replace(/[\s-]/g, ''))) {
+      newErrors.phone = "Enter a valid phone number (min 10 digits)";
+      isValid = false;
+    }
+
+    if (!formData.password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (password.length < 6) {
+    } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
+      isValid = false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
 
@@ -43,18 +76,23 @@ export default function LoginForm() {
 
     setIsLoading(true);
     
-    // Simulate API call
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      if (email === "test@zeno.com" && password === "password123") {
-        toast.success("Successfully logged in!");
-      } else {
-        toast.error("Invalid credentials. Try test@zeno.com / password123");
-      }
+      toast.success("Account created successfully!");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
     } catch (error) {
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: "" });
     }
   };
 
@@ -66,11 +104,30 @@ export default function LoginForm() {
       className="w-full max-w-md bg-white/70 backdrop-blur-xl p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 relative z-10"
     >
       <div className="mb-8 text-center sm:text-left">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h2>
-        <p className="text-gray-500 text-sm">Please enter your details to sign in.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Create an account</h2>
+        <p className="text-gray-500 text-sm">Join ZENO and start booking smarter.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Name Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <UserIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className={`block w-full pl-10 pr-3 py-3 border ${errors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} rounded-xl bg-white/50 text-gray-900 sm:text-sm transition-colors outline-none`}
+              placeholder="Enter your name"
+            />
+          </div>
+          {errors.name && <p className="mt-1.5 text-sm text-red-500">{errors.name}</p>}
+        </div>
+
         {/* Email Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
@@ -80,16 +137,33 @@ export default function LoginForm() {
             </div>
             <input
               type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors({ ...errors, email: "" });
-              }}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} rounded-xl bg-white/50 text-gray-900 sm:text-sm transition-colors outline-none`}
               placeholder="Enter your email"
             />
           </div>
           {errors.email && <p className="mt-1.5 text-sm text-red-500">{errors.email}</p>}
+        </div>
+
+        {/* Phone Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <PhoneIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className={`block w-full pl-10 pr-3 py-3 border ${errors.phone ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} rounded-xl bg-white/50 text-gray-900 sm:text-sm transition-colors outline-none`}
+              placeholder="Enter your phone number"
+            />
+          </div>
+          {errors.phone && <p className="mt-1.5 text-sm text-red-500">{errors.phone}</p>}
         </div>
 
         {/* Password Field */}
@@ -101,56 +175,65 @@ export default function LoginForm() {
             </div>
             <input
               type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors({ ...errors, password: "" });
-              }}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} rounded-xl bg-white/50 text-gray-900 sm:text-sm transition-colors outline-none`}
-              placeholder="Enter your password"
+              placeholder="Create password"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors"
-                title={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" aria-hidden="true" />
-                )}
+                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
               </button>
             </div>
           </div>
+          {/* Password Strength */}
+          {formData.password && (
+            <div className="mt-2 flex gap-1">
+              {[...Array(4)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1.5 w-full rounded-full transition-colors duration-300 ${
+                    i < strength 
+                      ? strength <= 1 
+                        ? 'bg-red-400' 
+                        : strength === 2 
+                        ? 'bg-yellow-400' 
+                        : 'bg-green-500'
+                      : 'bg-gray-200'
+                  }`} 
+                />
+              ))}
+            </div>
+          )}
           {errors.password && <p className="mt-1.5 text-sm text-red-500">{errors.password}</p>}
         </div>
 
-        {/* Remember me & Forgot Password */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
+        {/* Confirm Password Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <LockClosedIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
             <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-600 border-gray-300 rounded bg-white/50"
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={`block w-full pl-10 pr-3 py-3 border ${errors.confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500 focus:border-indigo-500'} rounded-xl bg-white/50 text-gray-900 sm:text-sm transition-colors outline-none`}
+              placeholder="Confirm your password"
             />
-            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-              Remember me
-            </label>
           </div>
-          <div className="text-sm">
-            <Link href="#" className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
-              Forgot password?
-            </Link>
-          </div>
+          {errors.confirmPassword && <p className="mt-1.5 text-sm text-red-500">{errors.confirmPassword}</p>}
         </div>
 
         {/* Submit Button */}
-        <div>
+        <div className="pt-2">
           <button
             type="submit"
             disabled={isLoading}
@@ -162,10 +245,10 @@ export default function LoginForm() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Processing...
+                Creating account...
               </div>
             ) : (
-              "Login to ZENO"
+              "Create Account"
             )}
           </button>
         </div>
@@ -210,9 +293,9 @@ export default function LoginForm() {
       </div>
 
       <p className="mt-8 text-center text-sm text-gray-500 font-medium">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-indigo-600 hover:text-indigo-500 transition-colors">
-          Sign up
+        Already have an account?{" "}
+        <Link href="/login" className="text-indigo-600 hover:text-indigo-500 transition-colors">
+          Login
         </Link>
       </p>
     </motion.div>

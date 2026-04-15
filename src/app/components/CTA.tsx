@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function CTA() {
   return (
     <section className="relative py-24 overflow-hidden">
@@ -14,9 +16,9 @@ export default function CTA() {
           Experience seamless booking with ZENO. Join thousands of happy travelers and discover the world's best hotels at unbeatable prices.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg">
+          <Link href="/signup" className="bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg inline-block text-center">
             Get Started
-          </button>
+          </Link>
         </div>
       </div>
     </section>

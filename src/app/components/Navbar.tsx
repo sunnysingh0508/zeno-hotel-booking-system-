@@ -13,12 +13,12 @@ export default function Navbar() {
           <Link href="#contact" className="hover:text-indigo-600 transition-colors">Contact</Link>
         </div>
         <div className="flex items-center gap-4">
-          <button className="hidden md:block text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">
+          <Link href="/login" className="hidden md:block text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">
             Log in
-          </button>
-          <button className="bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+          </Link>
+          <Link href="/signup" className="bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm text-center">
             Book Now
-          </button>
+          </Link>
         </div>
       </div>
     </nav>

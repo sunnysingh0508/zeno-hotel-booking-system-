@@ -1,5 +1,6 @@
 "use client";
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
@@ -22,9 +23,9 @@ export default function Hero() {
               Search, compare, and book the best hotels instantly with ZENO. Experience seamless travel planning at your fingertips.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="bg-indigo-600 text-white px-8 py-4 rounded-full font-semibold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30">
+              <Link href="/signup" className="bg-indigo-600 text-white px-8 py-4 rounded-full font-semibold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 text-center">
                 Book Now
-              </button>
+              </Link>
               <button className="bg-white text-gray-800 border border-gray-200 px-8 py-4 rounded-full font-semibold hover:bg-gray-50 transition-all">
                 Explore Hotels
               </button>
